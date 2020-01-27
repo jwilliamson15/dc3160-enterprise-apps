@@ -1,10 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +26,11 @@ public class Controller extends HttpServlet {
 
    private Users users;
    private LessonTimetable availableLessons;
-
+   
+   private Connection dbConnection = null;
+   private String dbUrl = "jdbc:mysql://localhost/cw";
+   
+   @Override
     public void init() {
          users = new Users();
          availableLessons = new LessonTimetable();
@@ -31,6 +38,7 @@ public class Controller extends HttpServlet {
         
     }
     
+   @Override
     public void destroy() {
         
     }
@@ -41,25 +49,66 @@ public class Controller extends HttpServlet {
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
+     * @throws java.sql.SQLException
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
+        String action = request.getPathInfo();
         
+        if (action.equals("/addUser")) {
+            addUser(request, response);
+        }
+        if (action.equals("/login")) {
+            
+        }
 
     }
+    
+    private void addUser(HttpServletRequest request, HttpServletResponse response) {
+       String username = request.getParameter("newUsername");
+       String password = request.getParameter("newPassword");
+       
+       if (dbConnection == null) {
+           try {
+               Class.forName("com.mysql.jdbc.Driver");
+               dbConnection = DriverManager.getConnection(dbUrl, "root", "pass");
+               
+               String query = "INSERT INTO `cw`.`clients` (`username`, `password`) VALUES ('"+username+"', '"+password+"');";
+               Statement stmt = dbConnection.createStatement();
+               //ResultSet resultOne = 
+               stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+               
+               ResultSet genKeys = stmt.getGeneratedKeys();
+               if (genKeys.next()) {
+                   System.out.println("Added user >>> " + Integer.toString(genKeys.getInt(1)));
+               }
+               
+           } catch (Exception ex) {
+               System.out.println("Exception >>> "+ ex);
+               System.out.println(">>> " + ex.getStackTrace());
+           }
+       }
+   
+   }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-
-    @Override
+   @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+       try {
+           processRequest(request, response);
+       } catch (SQLException ex) {
+           Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+       }
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+       try {
+           processRequest(request, response);
+       } catch (SQLException ex) {
+           Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+       }
     }
 
 

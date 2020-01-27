@@ -15,13 +15,13 @@
     </head>
     <body>
         <h2>Please log in!</h2>
-              <form method="POST" action="http://localhost:8084/coursework/do/login">
+              <form method="POST" action="/coursework/do/login">
                 Username:<input type="text" name="username" value="" />----
                 Password:<input type="password" name="password" value="" />        
         <input type="submit" value="Click to log in" />
         </form>
         
-        <form method="POST" action="http://localhost:8084/coursework/do/addUser">
+        <form method="POST" action="/coursework/do/addUser">
             <h2> Don't yet have an account? </h2>
             Username:<input type="text" name="newUsername" value="" />----
                 Password:<input type="password" name="newPassword" value="" />      
