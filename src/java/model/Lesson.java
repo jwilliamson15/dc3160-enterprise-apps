@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 /**
  *
- * @author bastinl
+ * @author Josh Williamson
  */
 public class Lesson {
     
@@ -19,7 +19,9 @@ public class Lesson {
     
     protected String ID;
     
-    // There is no no-arguments constructor, so at the moment this class can't be instantiated directly from JSPX using 'useBean'
+    public Lesson() {
+        System.out.println("NO ARGS LESSON CONSRTUCTOR >>>");
+    }
 
     public Lesson(String description, Timestamp startDateTime, Timestamp endDateTime, int level, String id) {
         

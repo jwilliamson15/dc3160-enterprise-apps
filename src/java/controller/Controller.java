@@ -1,12 +1,8 @@
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -21,7 +17,7 @@ import model.Users;
 
 /**
  *
- * @author bastinl
+ * @author Josh Williamson
  */
 public class Controller extends HttpServlet {
 
@@ -30,6 +26,8 @@ public class Controller extends HttpServlet {
    
    private Connection dbConnection = null;
    private String dbUrl = "jdbc:mysql://localhost/cw";
+   
+   HttpSession session = null;
    
    @Override
     public void init() {
@@ -56,21 +54,32 @@ public class Controller extends HttpServlet {
             throws ServletException, IOException, SQLException {
         String action = request.getPathInfo();
         RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+        HttpSession session = request.getSession(false);
         
         if (action.equals("/addUser")) {
-            users.addUser(request.getParameter("newUsername"), request.getParameter("newPassword"));
-            dispatcher = this.getServletContext().getRequestDispatcher("/home.jsp");
+            String username = request.getParameter("newUsername");
+            users.addUser(username, request.getParameter("newPassword"));
+            setWebSession(request, username);
+            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
         }
         if (action.equals("/login")) {
-            if (users.isValid(request.getParameter("username"), request.getParameter("password"))) {
+            String username = request.getParameter("username");
+            if (users.isValid(username, request.getParameter("password"))) {
                 System.out.println("LOGIN SUCCESS >>>");
-                dispatcher = this.getServletContext().getRequestDispatcher("/home.jsp");
+                
+                setWebSession(request, username);
+                dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
             } else {
                 dispatcher = this.getServletContext().getRequestDispatcher("/loginFailed.jsp");
             }
         }
 
         dispatcher.forward(request, response);
+    }
+    
+    private void setWebSession(HttpServletRequest request, String username) {
+        session = request.getSession();
+        session.setAttribute("user", username);
     }
 
    @Override

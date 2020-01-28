@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package model;
 
 import java.util.HashMap;
@@ -19,7 +14,7 @@ import javax.sql.DataSource;
 
 /**
  *
- * @author bastinl
+ * @author Josh Williamson
  */
 public class LessonTimetable {
 
@@ -33,7 +28,7 @@ public class LessonTimetable {
   private DataSource ds = null;
     
     public LessonTimetable() {
-
+        System.out.println("NO ARGS LESSTIMETABLE CONSTRUCTOR >>>");
         // You don't need to make any changes to the try/catch code below
         try {
             // Obtain our environment naming context
@@ -41,54 +36,45 @@ public class LessonTimetable {
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             // Look up our data source
             ds = (DataSource)envCtx.lookup("jdbc/LessonDatabase");
-        }
-            catch(Exception e) {
+        } catch(Exception e) {
             System.out.println("Exception message is " + e.getMessage());
         }
         
         try {
-            // Connect to the database - you can use this connection to 
-            // create and prepare statements, and you don't need to worry about closing it
             Connection connection = ds.getConnection();
-        
              try {
-
                 if (connection != null) {
+                    st = connection.createStatement();
+                    String query = "SELECT description, startDateTime, endDateTime, level, lessonid FROM cw.lessons;";
+                    rs = st.executeQuery(query);
                     
-                    // TODO instantiate and populate the 'lessons' HashMap by selecting the relevant infromation from the database
-                  
                     lessons = new HashMap<String, Lesson>();
-            
-                    // TODO add code here to retrieve the infromation and create the new Lesson objects
+                    if (rs.next()) {
+                        lessons.put(rs.getString("lessonid"), 
+                                new Lesson(rs.getString("description"), 
+                                        rs.getTimestamp("startDateTime"),
+                                        rs.getTimestamp("endDateTime"),
+                                        rs.getInt("level"),
+                                        rs.getString("lessonid")));
+                    }
                 }
-
-            }catch(SQLException e) {
-
+            } catch(SQLException e) {
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
-        
             }
-        
-        
-          }catch(Exception e){
-
+          } catch(Exception e){
              System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
           }
-      
     }
-    
    
     /**
      * @return the items
      */
     public Lesson getLesson(String itemID) {
-        
         return (Lesson)this.lessons.get(itemID);
     }
 
     public Map getLessons() {
-        
         return this.lessons;
-        
     }
     
 }

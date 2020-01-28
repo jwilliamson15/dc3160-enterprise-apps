@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Document   : home
+    Created on : 28-Jan-2020, 22:20:46
+    Author     : Josh Wi
+-->
+<jsp:root xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsp/jstl/fmt"
+    version="2.0">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+    <!-- any content can be specified here, e.g.: -->
+    <jsp:element name="text">
+        <jsp:attribute name="lang">EN</jsp:attribute>
+        <jsp:body>
+            <h1>Lesson Timetable</h1>
+            <p>The table below will show all lessons available.</p>
+            
+            <jsp:useBean class="model.LessonTimetable" id="lessonTimetable" scope="application" />
+            <table border ="2">
+                <tr>
+                    <th>Lesson Id</th>
+                    <th>Description</th>
+                    <th>Level</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th></th>
+                </tr>
+                <c:forEach var="lesson" items="${lessonTimetable.lessons}">
+                    <form method="POST" action="bookLesson">
+                        <tr>
+                            <td><c:out value="${lesson.key}"/></td>
+                            <td><c:out value="${lesson.value.description}"/></td>
+                            <td><c:out value="${lesson.value.level}"/></td>
+                            <td><c:out value="${lesson.value.startTime}"/></td>
+                            <td><c:out value="${lesson.value.endTime}"/></td>
+                            <td><input type="submit" value="Book Lesson"/></td>
+                        </tr>
+                    </form>
+                </c:forEach>
+            </table>
+        </jsp:body>
+    </jsp:element>
+</jsp:root>
