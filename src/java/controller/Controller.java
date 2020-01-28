@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -59,37 +60,127 @@ public class Controller extends HttpServlet {
             addUser(request, response);
         }
         if (action.equals("/login")) {
-            
+            login(request, response);
         }
 
     }
     
-    private void addUser(HttpServletRequest request, HttpServletResponse response) {
-       String username = request.getParameter("newUsername");
-       String password = request.getParameter("newPassword");
+    private void login(HttpServletRequest request, HttpServletResponse response) {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
        
-       if (dbConnection == null) {
-           try {
-               Class.forName("com.mysql.jdbc.Driver");
-               dbConnection = DriverManager.getConnection(dbUrl, "root", "pass");
-               
-               String query = "INSERT INTO `cw`.`clients` (`username`, `password`) VALUES ('"+username+"', '"+password+"');";
-               Statement stmt = dbConnection.createStatement();
-               //ResultSet resultOne = 
-               stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-               
-               ResultSet genKeys = stmt.getGeneratedKeys();
-               if (genKeys.next()) {
-                   System.out.println("Added user >>> " + Integer.toString(genKeys.getInt(1)));
-               }
-               
-           } catch (Exception ex) {
-               System.out.println("Exception >>> "+ ex);
-               System.out.println(">>> " + ex.getStackTrace());
-           }
-       }
-   
+        try {
+            if (dbConnection == null) {
+                Class.forName("com.mysql.jdbc.Driver");
+                dbConnection = DriverManager.getConnection(dbUrl, "root", "pass");
+            }
+        
+            String query = "SELECT `username`, `password` FROM cw.clients WHERE username = '"+username+"';";
+            Statement stmt = dbConnection.createStatement();
+            ResultSet resultOne = stmt.executeQuery(query);
+
+            if (resultOne.next()) {
+                if (password.equals(resultOne.getString("password"))) {
+                    System.out.println("LOGIN SUCCESS >>>");
+                    
+                    //output
+                    response.setContentType("text/html;charset=UTF-8");
+                    PrintWriter out = response.getWriter();
+                    out.println("<!DOCTYPE html>");
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>registerUser Complete</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<p><b>LOGGED IN #HACKERMAN</b></p>");
+                    out.println("</body>");
+                    out.println("</html>");
+                } else {
+                    System.out.println("PASSWORD PROBLEM >>>");
+                    loginFailedOutput(response);
+                }
+            } else {
+                System.out.println("USERNAME PROBLEM >>>");
+                loginFailedOutput(response);
+            }
+
+            dbConnection.close();
+            dbConnection = null;
+        } catch (Exception ex) {
+            System.out.println("Exception >>> "+ ex);
+            System.out.println(">>> " + ex.getStackTrace());
+        }
+    }
+    
+    private void addUser(HttpServletRequest request, HttpServletResponse response) {
+        String username = request.getParameter("newUsername");
+        String password = request.getParameter("newPassword");
+       
+        try {
+            if (dbConnection == null) {
+                Class.forName("com.mysql.jdbc.Driver");
+                dbConnection = DriverManager.getConnection(dbUrl, "root", "pass");
+            }
+        
+            String query = "INSERT INTO `cw`.`clients` (`username`, `password`) VALUES ('"+username+"', '"+password+"');";
+            Statement stmt = dbConnection.createStatement();
+            stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+            ResultSet genKeys = stmt.getGeneratedKeys();
+            if (genKeys.next()) {
+                System.out.println("Added user >>> " + Integer.toString(genKeys.getInt(1)));
+                
+                //output
+                response.setContentType("text/html;charset=UTF-8");
+                PrintWriter out = response.getWriter();
+
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>registerUser Complete</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<p>New user was added. Login <b><a href=\"/coursework/login.jsp\">here</a></b></p>");
+                out.println("</body>");
+                out.println("</html>");
+            } else {
+                //output
+                response.setContentType("text/html;charset=UTF-8");
+                PrintWriter out = response.getWriter();
+
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>registerUser Complete</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<p><b>Error</b><a href=\"/coursework/login.jsp\">Please try again</a></p>");
+                out.println("</body>");
+                out.println("</html>");
+            }
+
+            dbConnection.close();
+            dbConnection = null;
+        } catch (Exception ex) {
+            System.out.println("Exception >>> "+ ex);
+            System.out.println(">>> " + ex.getStackTrace());
+        }
    }
+    
+    private void loginFailedOutput(HttpServletResponse response) throws IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("<!DOCTYPE html>");
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>registerUser Complete</title>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<p><b>LOGIN FAILED</b></p>");
+        out.println("<p><a href=\"/coursework/login.jsp\">Try again</a></p>");
+        out.println("</body>");
+        out.println("</html>");
+    }
 
    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
