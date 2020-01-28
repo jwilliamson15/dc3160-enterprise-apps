@@ -28,14 +28,14 @@ public class LessonTimetable {
   private DataSource ds = null;
     
     public LessonTimetable() {
-        System.out.println("NO ARGS LESSTIMETABLE CONSTRUCTOR >>>");
+        System.out.println("NO ARGS LESSON TIMETABLE CONSTRUCTOR >>>");
         // You don't need to make any changes to the try/catch code below
         try {
             // Obtain our environment naming context
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             // Look up our data source
-            ds = (DataSource)envCtx.lookup("jdbc/LessonDatabase");
+            ds = (DataSource)envCtx.lookup("jdbc/cwdb");
         } catch(Exception e) {
             System.out.println("Exception message is " + e.getMessage());
         }
@@ -49,7 +49,7 @@ public class LessonTimetable {
                     rs = st.executeQuery(query);
                     
                     lessons = new HashMap<String, Lesson>();
-                    if (rs.next()) {
+                    while (rs.next()) {
                         lessons.put(rs.getString("lessonid"), 
                                 new Lesson(rs.getString("description"), 
                                         rs.getTimestamp("startDateTime"),
@@ -61,6 +61,9 @@ public class LessonTimetable {
             } catch(SQLException e) {
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
             }
+             
+            st.close();
+            connection.close();
           } catch(Exception e){
              System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
           }

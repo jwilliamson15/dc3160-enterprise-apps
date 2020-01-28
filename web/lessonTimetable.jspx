@@ -2,7 +2,7 @@
 <!-- 
     Document   : home
     Created on : 28-Jan-2020, 22:20:46
-    Author     : Josh Wi
+    Author     : Josh Williamson
 -->
 <jsp:root xmlns="http://www.w3.org/1999/xhtml"
     xmlns:jsp="http://java.sun.com/JSP/Page"
