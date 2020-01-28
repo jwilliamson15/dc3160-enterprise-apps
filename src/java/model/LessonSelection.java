@@ -25,6 +25,10 @@ public class LessonSelection  {
     
     private ResultSet rs = null;
     private Statement st = null;
+    
+    public LessonSelection() {
+        System.out.println("NO ARGS LESSON SELECTION CONSTRUCTOR >>>");
+    }
 
     public LessonSelection(String username) {
         

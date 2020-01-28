@@ -83,7 +83,7 @@ public class Controller extends HttpServlet {
             bookedLessons.addLesson(lesson);
             session.setAttribute("bookings", bookedLessons);
             
-            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
         }
 
         dispatcher.forward(request, response);
