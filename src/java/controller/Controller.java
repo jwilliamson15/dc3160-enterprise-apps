@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import model.Lesson;
+import model.LessonSelection;
 
 import model.LessonTimetable;
 import model.Users;
@@ -73,6 +75,16 @@ public class Controller extends HttpServlet {
                 dispatcher = this.getServletContext().getRequestDispatcher("/loginFailed.jsp");
             }
         }
+        if (action.equals("/bookLesson")) {
+            System.out.println("BOOK LESSON ACTION >>>");
+            Lesson lesson = availableLessons.getLesson(request.getParameter("lessonId"));
+            
+            LessonSelection bookedLessons = (LessonSelection) session.getAttribute("bookings");
+            bookedLessons.addLesson(lesson);
+            session.setAttribute("bookings", bookedLessons);
+            
+            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+        }
 
         dispatcher.forward(request, response);
     }
@@ -80,6 +92,8 @@ public class Controller extends HttpServlet {
     private void setWebSession(HttpServletRequest request, String username) {
         session = request.getSession();
         session.setAttribute("user", username);
+        LessonSelection bookedLessons = new LessonSelection(username);
+        session.setAttribute("bookings", bookedLessons);
     }
 
    @Override

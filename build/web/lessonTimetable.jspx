@@ -37,7 +37,8 @@
                             <td><c:out value="${lesson.value.level}"/></td>
                             <td><c:out value="${lesson.value.startTime}"/></td>
                             <td><c:out value="${lesson.value.endTime}"/></td>
-                            <td><input type="submit" value="Book Lesson"/></td>
+                            <td><input type="hidden" name="lessonId" value="${lesson.key}"/>
+                                <input type="submit" value="Book Lesson"/></td>
                         </tr>
                     </form>
                 </c:forEach>

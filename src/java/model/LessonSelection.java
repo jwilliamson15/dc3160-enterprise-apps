@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package model;
 
 import java.sql.Connection;
@@ -19,22 +14,22 @@ import javax.sql.DataSource;
 
 /**
  *
- * @author bastinl
+ * @author Josh Williamson
  */
 public class LessonSelection  {
     
     private HashMap<String, Lesson> chosenLessons;
-    private int ownerID;
+    private String username;
     
     private DataSource ds = null;
     
     private ResultSet rs = null;
     private Statement st = null;
 
-    public LessonSelection(int owner) {
+    public LessonSelection(String username) {
         
         chosenLessons = new HashMap<String, Lesson>();
-        this.ownerID = owner;
+        this.username = username;
 
         // You don't need to make any changes to the try/catch code below
         try {
@@ -56,7 +51,10 @@ public class LessonSelection  {
              try {
 
                 if (connection != null) {
-                  
+                    st = connection.createStatement();
+                    //String query = "";
+                    //rs = st.executeQuery(query);
+                    
                     // TODO get the details of any lessons currently selected by this user
                     // One way to do this: create a join query which:
                        // 1. finds rows in the 'lessons_booked' table which relate to this clientid
@@ -70,6 +68,8 @@ public class LessonSelection  {
                     
                 }
 
+                st.close();
+                connection.close();
             }catch(SQLException e) {
 
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
@@ -105,8 +105,8 @@ public class LessonSelection  {
         return this.chosenLessons.size();
     }
 
-    public int getOwner() {
-        return this.ownerID;
+    public String getusername() {
+        return this.username;
     }
     
     public void updateBooking() {
