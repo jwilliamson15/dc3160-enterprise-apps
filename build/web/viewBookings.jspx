@@ -16,9 +16,10 @@
     <jsp:element name="text">
         <jsp:attribute name="lang">EN</jsp:attribute>
         <jsp:body>
+            <jsp:include page="/navBar.jspx" />
             <h1>Lesson Bookings</h1>
             <p>This page shows your booked lessons.
-                Click <a href="/coursework/lessonTimetable.jspx">here</a> to book more!</p>
+                Click <a href="timetable">here</a> to book more!</p>
             
             <table border="2">
                 <tr>

@@ -85,6 +85,14 @@ public class Controller extends HttpServlet {
             
             dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
         }
+        
+        //links used for navbar
+        if (action.equals("/timetable")){
+            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+        }
+        if (action.equals("/bookings")) {
+            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
+        }
 
         dispatcher.forward(request, response);
     }

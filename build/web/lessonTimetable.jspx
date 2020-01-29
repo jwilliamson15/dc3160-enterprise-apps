@@ -12,10 +12,10 @@
 
     <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
 
-    <!-- any content can be specified here, e.g.: -->
     <jsp:element name="text">
         <jsp:attribute name="lang">EN</jsp:attribute>
         <jsp:body>
+            <jsp:include page="/navBar.jspx" />
             <h1>Lesson Timetable</h1>
             <p>The table below will show all lessons available.</p>
             
