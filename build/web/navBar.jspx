@@ -14,7 +14,7 @@
     <jsp:element name="text">
         <jsp:attribute name="lang">EN</jsp:attribute>
         <jsp:body>
-            <p>[ <a href="timetable">Lesson Timetable</a> | <a href="bookings">View Bookings</a> ]</p>
+            <p>[ <a href="timetable">Lesson Timetable</a> | <a href="bookings">View Bookings</a> | <a href="logout">Logout</a> ]</p>
         </jsp:body>
     </jsp:element>
 

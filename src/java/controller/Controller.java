@@ -93,6 +93,10 @@ public class Controller extends HttpServlet {
         if (action.equals("/bookings")) {
             dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
         }
+        if (action.equals("/logout")) {
+            session.invalidate();
+            dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+        }
 
         dispatcher.forward(request, response);
     }
