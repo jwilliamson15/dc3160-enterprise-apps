@@ -60,8 +60,8 @@ public class Controller extends HttpServlet {
         
         if (action.equals("/addUser")) {
             String username = request.getParameter("newUsername");
-            users.addUser(username, request.getParameter("newPassword"));
-            setWebSession(request, username);
+            Integer userId = users.addUser(username, request.getParameter("newPassword"));
+            setWebSession(request, userId);
             dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
         }
         if (action.equals("/login")) {
@@ -69,7 +69,8 @@ public class Controller extends HttpServlet {
             if (users.isValid(username, request.getParameter("password"))) {
                 System.out.println("LOGIN SUCCESS >>>");
                 
-                setWebSession(request, username);
+                int userId = users.getUserId(username);
+                setWebSession(request, userId);
                 dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
             } else {
                 dispatcher = this.getServletContext().getRequestDispatcher("/loginFailed.jsp");
@@ -79,9 +80,17 @@ public class Controller extends HttpServlet {
             System.out.println("BOOK LESSON ACTION >>>");
             Lesson lesson = availableLessons.getLesson(request.getParameter("lessonId"));
             
-            LessonSelection bookedLessons = (LessonSelection) session.getAttribute("bookings");
+            LessonSelection bookedLessons = getBookingsFromSession();
             bookedLessons.addLesson(lesson);
             session.setAttribute("bookings", bookedLessons);
+            
+            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
+        }
+        if (action.equals("/saveBooking")) {
+            System.out.println("SAVE BOOKING ACTION >>>");
+            
+            LessonSelection bookedLessons = getBookingsFromSession();
+            bookedLessons.updateBooking((String) session.getAttribute("user"));
             
             dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
         }
@@ -97,15 +106,25 @@ public class Controller extends HttpServlet {
             session.invalidate();
             dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
         }
+        if (action.equals("/loginFailed")) {
+            session.invalidate();
+            dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+        }
 
         dispatcher.forward(request, response);
     }
     
-    private void setWebSession(HttpServletRequest request, String username) {
+    private void setWebSession(HttpServletRequest request, Integer userId) {
+        String userIdStr = Integer.toString(userId);
         session = request.getSession();
-        session.setAttribute("user", username);
-        LessonSelection bookedLessons = new LessonSelection(username);
+        session.setAttribute("user", userIdStr);
+        
+        LessonSelection bookedLessons = new LessonSelection(userIdStr);
         session.setAttribute("bookings", bookedLessons);
+    }
+    
+    private LessonSelection getBookingsFromSession() {
+        return (LessonSelection) session.getAttribute("bookings");
     }
 
    @Override

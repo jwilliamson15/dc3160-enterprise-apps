@@ -13,6 +13,5 @@
     </head>
     <body>
         <h1>LOGIN FAILED</h1>
-        <p><a href=\"/coursework/login.jsp\">Try again</a></p>
     </body>
 </html>

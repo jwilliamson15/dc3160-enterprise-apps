@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,19 +42,15 @@ public class LessonSelection  {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             // Look up our data source
-            ds = (DataSource)envCtx.lookup("jdbc/LessonDatabase");
-        }
-            catch(Exception e) {
+            ds = (DataSource)envCtx.lookup("jdbc/cwdb");
+        } catch(Exception e) {
             System.out.println("Exception message is " + e.getMessage());
         }
         
         // Connect to the database - this is a pooled connection, so you don't need to close it afterwards
         try {
-
             Connection connection = ds.getConnection();
-
-             try {
-
+            try {
                 if (connection != null) {
                     st = connection.createStatement();
                     //String query = "";
@@ -72,18 +69,48 @@ public class LessonSelection  {
                     
                 }
 
+            } catch(SQLException e) {
+                System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
+            } finally {
                 st.close();
-                connection.close();
-            }catch(SQLException e) {
-
-                System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
             }
-        
-        
-            }catch(Exception e){
-
+        } catch(Exception e){
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
+        }
+    }
+    
+    public void updateBooking(String clientId) {
+        Object[] lessonKeys = chosenLessons.keySet().toArray();
+        for (Object lessonKey : lessonKeys) {
+            String lessonId = (String) lessonKey;
+            
+            System.out.println(" >>> Lesson ID is : " + lessonId);
+            
+            try {
+                Connection dbConnection = ds.getConnection();
+                PreparedStatement deleteQuery = dbConnection.prepareStatement(
+                        "DELETE FROM cw.lessons_booked WHERE  `clientid`=?;");
+                deleteQuery.setString(1, clientId);
+                deleteQuery.executeUpdate();
+                
+                System.out.println("BLATTED YOUR USER DETAILS >>> " + clientId);
+                
+//                PreparedStatement insertQuery = dbConnection.prepareStatement(
+//                        "INSERT INTO cw.lessons_booked (clientid, lessonid) VALUES (?,?)");
+//                insertQuery.setString(1, clientId);
+//                insertQuery.setString(2, lessonId);
+//                insertQuery.executeUpdate();
+                
+            } catch (SQLException ex) {
+                System.out.println("Exception is ;"+ex + ": message is " + ex.getMessage());
             }
+        }
+        
+        // TODO In the database, delete any existing lessons booked for this user in the table 'lessons_booked'
+        // REMEMBER to use executeUpdate, not executeQuery
+        // TODO - write and execute a query which, for each selected lesson, will insert into the correct table:
+        // the owner id into the clientid field
+        // the lesson ID into the lessonid field
         
     }
 
@@ -111,26 +138,6 @@ public class LessonSelection  {
 
     public String getusername() {
         return this.username;
-    }
-    
-    public void updateBooking() {
-        
-        // A tip: here is how you can get the ids of any lessons that are currently selected
-        Object[] lessonKeys = chosenLessons.keySet().toArray();
-        for (int i=0; i<lessonKeys.length; i++) {
-                    
-              // Temporary check to see what the current lesson ID is....
-              System.out.println("Lesson ID is : " + (String)lessonKeys[i]);
-        }
-      
-        // TODO get a connection to the database as in the method above
-        // TODO In the database, delete any existing lessons booked for this user in the table 'lessons_booked'
-        // REMEMBER to use executeUpdate, not executeQuery
-        // TODO - write and execute a query which, for each selected lesson, will insert into the correct table:
-                    // the owner id into the clientid field
-                    // the lesson ID into the lessonid field
-       
-        
     }
 
 }

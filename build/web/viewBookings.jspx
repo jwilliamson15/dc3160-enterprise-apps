@@ -21,26 +21,31 @@
             <p>This page shows your booked lessons.
                 Click <a href="timetable">here</a> to book more!</p>
             
-            <table border="2">
-                <tr>
-                    <th>Lesson Id</th>
-                    <th>Description</th>
-                    <th>Level</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                </tr>
-                <c:forEach var="lesson" items="${bookings.items}">
+            <form method="POST" action="saveBooking">
+                <p>
+                    <table border="2">
                     <tr>
-                        <td><c:out value="${lesson.key}"/></td>
-                        <td><c:out value="${lesson.value.description}"/></td>
-                        <td><c:out value="${lesson.value.level}"/></td>
-                        <td><c:out value="${lesson.value.startTime}"/></td>
-                        <td><c:out value="${lesson.value.endTime}"/></td>
+                        <th>Lesson Id</th>
+                        <th>Description</th>
+                        <th>Level</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
                     </tr>
-                </c:forEach>
-                
-                <jsp:useBean class="model.LessonSelection" id="bookings" scope="session"/>
-            </table>
+                    <c:forEach var="lesson" items="${bookings.items}">
+                        <tr>
+                            <td><c:out value="${lesson.key}"/></td>
+                            <td><c:out value="${lesson.value.description}"/></td>
+                            <td><c:out value="${lesson.value.level}"/></td>
+                            <td><c:out value="${lesson.value.startTime}"/></td>
+                            <td><c:out value="${lesson.value.endTime}"/></td>
+                        </tr>
+                    </c:forEach>
+
+                    <jsp:useBean class="model.LessonSelection" id="bookings" scope="session"/>
+                    </table>
+                </p>
+                <p><input type="submit" value="Finalise Booking" /></p>
+            </form>
         
         </jsp:body>
     </jsp:element>

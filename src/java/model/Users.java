@@ -58,7 +58,7 @@ public class Users {
         return false;
     }
     
-    public void addUser(String username, String password) {
+    public Integer addUser(String username, String password) {
         try {
             Connection connection = ds.getConnection();
 
@@ -66,10 +66,13 @@ public class Users {
                 pstmt = connection.prepareStatement("INSERT INTO clients (username, password) VALUES (?,?)");
                 pstmt.setString(1, username);
                 pstmt.setString(2, password);
-                int newUserId = pstmt.executeUpdate();
+                pstmt.executeUpdate();
+                
+                 int newUserId = getUserId(username);
 
                 if (newUserId > 0) {
                     System.out.println("Added user >>> " + Integer.toString(newUserId));
+                    return newUserId;
                 } else {
                     System.out.println("User add failed >>> ");
                 }
@@ -77,5 +80,16 @@ public class Users {
         } catch(SQLException e) {
             System.out.println("Exception is ;"+e + ": message is " + e.getMessage());   
         }
+        return null;
+    }
+
+    public int getUserId(String username) throws SQLException {
+        Connection connection = ds.getConnection();
+        String query = "SELECT `clientid` FROM cw.clients WHERE username = '"+username+"';";
+        ResultSet userResults = connection.createStatement().executeQuery(query);
+        if (userResults.next()) {
+            return userResults.getInt("clientid");   
+        }
+        throw new SQLException("Client ID not found");
     }
 }

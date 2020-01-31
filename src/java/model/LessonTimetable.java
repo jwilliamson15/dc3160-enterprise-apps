@@ -41,7 +41,7 @@ public class LessonTimetable {
         }
         
         try {
-            Connection connection = ds.getConnection();
+            connection = ds.getConnection();
              try {
                 if (connection != null) {
                     st = connection.createStatement();
@@ -60,13 +60,13 @@ public class LessonTimetable {
                 }
             } catch(SQLException e) {
                 System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
+            } finally {
+                st.close();
+                connection.close();
             }
-             
-            st.close();
-            connection.close();
-          } catch(Exception e){
+        } catch(Exception e){
              System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
-          }
+        }
     }
    
     /**
