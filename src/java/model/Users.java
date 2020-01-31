@@ -41,14 +41,15 @@ public class Users {
             if (connection != null) {
                 String query = "SELECT `username`, `password` FROM cw.clients WHERE username = '"+username+"';";
                 Statement stmt = connection.createStatement();
-                ResultSet resultOne = stmt.executeQuery(query);
+                rs = stmt.executeQuery(query);
 
-                if (resultOne.next()) {
-                    if (password.equals(resultOne.getString("password"))) {
+                if (rs.next()) {
+                    if (password.equals(rs.getString("password"))) {
                         System.out.println("DB CREDS MATCHED >>>");
                         return true;
                     }
                 } 
+                rs.close();
             }
         } catch(SQLException e) {    
             System.out.println("Exception is ;"+e + ": message is " + e.getMessage());

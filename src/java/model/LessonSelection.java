@@ -66,15 +66,6 @@ public class LessonSelection  {
                     }
                     lessonRs.close();
                 }
-
-                // TODO get the details of any lessons currently selected by this user
-                // One way to do this: create a join query which:
-                   // 1. finds rows in the 'lessons_booked' table which relate to this clientid
-                   // 2. links 'lessons' to 'lessons_booked' by 'lessonid
-                   // 3. selects all fields from lessons for these rows
-
-                // For each one, instantiate a new Lesson object, 
-                // and add it to this collection (use 'LessonSelection.addLesson()' )
                 st.close();
             }
         } catch(Exception e){

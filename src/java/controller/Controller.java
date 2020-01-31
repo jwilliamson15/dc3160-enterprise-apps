@@ -23,20 +23,21 @@ import model.Users;
  */
 public class Controller extends HttpServlet {
 
+    private final static String LOGIN_PAGE = "/login.jsp";
+    private final static String LESSON_TIMETABLE_PAGE = "/lessonTimetable.jspx";
+    private final static String LOGIN_FAILED_PAGE = "/loginFailed.jsp";
+    private final static String VIEW_BOOKINGS_PAGE = "/viewBookings.jspx";
+    
    private Users users;
    private LessonTimetable availableLessons;
    
-   private Connection dbConnection = null;
-   private String dbUrl = "jdbc:mysql://localhost/cw";
-   
    HttpSession session = null;
+   RequestDispatcher dispatcher = null;
    
    @Override
     public void init() {
-         users = new Users();
-         availableLessons = new LessonTimetable();
-         // TODO Attach the lesson timetable to an appropriate scope
-        
+        users = new Users();
+        availableLessons = new LessonTimetable();
     }
     
    @Override
@@ -55,14 +56,14 @@ public class Controller extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         String action = request.getPathInfo();
-        RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+        dispatcher = this.getServletContext().getRequestDispatcher(LOGIN_PAGE);
         HttpSession session = request.getSession(false);
         
         if (action.equals("/addUser")) {
             String username = request.getParameter("newUsername");
             Integer userId = users.addUser(username, request.getParameter("newPassword"));
             setWebSession(request, userId);
-            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+            dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
         if (action.equals("/login")) {
             String username = request.getParameter("username");
@@ -71,9 +72,9 @@ public class Controller extends HttpServlet {
                 
                 int userId = users.getUserId(username);
                 setWebSession(request, userId);
-                dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+                dispatch(LESSON_TIMETABLE_PAGE, request, response);
             } else {
-                dispatcher = this.getServletContext().getRequestDispatcher("/loginFailed.jsp");
+                dispatch(LOGIN_FAILED_PAGE, request, response);
             }
         }
         if (action.equals("/bookLesson")) {
@@ -84,7 +85,7 @@ public class Controller extends HttpServlet {
             bookedLessons.addLesson(lesson);
             session.setAttribute("bookings", bookedLessons);
             
-            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
+            dispatch(VIEW_BOOKINGS_PAGE, request, response);
         }
         if (action.equals("/saveBooking")) {
             System.out.println("SAVE BOOKING ACTION >>>");
@@ -92,26 +93,31 @@ public class Controller extends HttpServlet {
             LessonSelection bookedLessons = getBookingsFromSession();
             bookedLessons.updateBooking((String) session.getAttribute("user"));
             
-            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+            dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
         
         //links used for navbar and rediretion
         if (action.equals("/timetable")){
-            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
+            dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
         if (action.equals("/bookings")) {
-            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
+            dispatch(VIEW_BOOKINGS_PAGE, request, response);
         }
         if (action.equals("/logout")) {
             session.invalidate();
-            dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+            dispatch(LOGIN_PAGE, request, response);
         }
         if (action.equals("/loginFailed")) {
             session.invalidate();
-            dispatcher = this.getServletContext().getRequestDispatcher("/login.jsp");
+            dispatch(LOGIN_PAGE, request, response);
         }
 
-        dispatcher.forward(request, response);
+        
+    }
+    
+    private void dispatch(String dispatchPath, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        dispatcher = this.getServletContext().getRequestDispatcher(dispatchPath);
+        dispatcher.forward(req, resp);
     }
     
     private void setWebSession(HttpServletRequest request, Integer userId) {
