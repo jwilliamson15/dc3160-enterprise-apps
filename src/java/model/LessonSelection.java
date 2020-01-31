@@ -111,8 +111,9 @@ public class LessonSelection  {
     public void addLesson(Lesson l) {
        
         Lesson i = new Lesson(l);
-        this.chosenLessons.put(l.getId(), i);
-       
+        if (chosenLessons.size() < 3) {
+            this.chosenLessons.put(l.getId(), i);
+        }
     }
 
     public Lesson getLesson(String id){
