@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 public class LessonSelection  {
     
     private HashMap<String, Lesson> chosenLessons;
-    private String username;
+    private String userId;
     
     private DataSource ds = null;
     
@@ -31,47 +31,50 @@ public class LessonSelection  {
         System.out.println("NO ARGS LESSON SELECTION CONSTRUCTOR >>>");
     }
 
-    public LessonSelection(String username) {
+    public LessonSelection(String userId) {
         
         chosenLessons = new HashMap<String, Lesson>();
-        this.username = username;
+        this.userId = userId;
 
-        // You don't need to make any changes to the try/catch code below
         try {
             // Obtain our environment naming context
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             // Look up our data source
             ds = (DataSource)envCtx.lookup("jdbc/cwdb");
-        } catch(Exception e) {
-            System.out.println("Exception message is " + e.getMessage());
-        }
-        
-        // Connect to the database - this is a pooled connection, so you don't need to close it afterwards
-        try {
+
             Connection connection = ds.getConnection();
-            try {
-                if (connection != null) {
-                    st = connection.createStatement();
-                    //String query = "";
-                    //rs = st.executeQuery(query);
-                    
-                    // TODO get the details of any lessons currently selected by this user
-                    // One way to do this: create a join query which:
-                       // 1. finds rows in the 'lessons_booked' table which relate to this clientid
-                       // 2. links 'lessons' to 'lessons_booked' by 'lessonid
-                       // 3. selects all fields from lessons for these rows
-                    
-                    // If you need to test your SQL syntax you can do this in virtualmin
-                    
-                    // For each one, instantiate a new Lesson object, 
-                    // and add it to this collection (use 'LessonSelection.addLesson()' )
-                    
+            if (connection != null) {
+                st = connection.createStatement();
+                String query = "SELECT * FROM `cw`.`lessons_booked` WHERE  `clientid`="+userId+";";
+                rs = st.executeQuery(query);
+                
+                while (rs.next()) {
+                    String lessonId = rs.getString("lessonid");
+                    System.out.println("LESSON ID READ >>>" + lessonId);
+                    query = "SELECT description, startDateTime, endDateTime, level, lessonid "
+                            + "FROM `cw`.`lessons` WHERE lessonid =\""+lessonId+"\";";
+                    ResultSet lessonRs = connection.createStatement().executeQuery(query);
+                    if (lessonRs.next()) {
+                        Lesson newLesson = new Lesson(
+                            lessonRs.getString("description"),
+                            lessonRs.getTimestamp("startDateTime"),
+                            lessonRs.getTimestamp("endDateTime"),
+                            lessonRs.getInt("level"),
+                            lessonRs.getString("lessonid"));
+                        addLesson(newLesson);
+                    }
+                    lessonRs.close();
                 }
 
-            } catch(SQLException e) {
-                System.out.println("Exception is ;"+e + ": message is " + e.getMessage());
-            } finally {
+                // TODO get the details of any lessons currently selected by this user
+                // One way to do this: create a join query which:
+                   // 1. finds rows in the 'lessons_booked' table which relate to this clientid
+                   // 2. links 'lessons' to 'lessons_booked' by 'lessonid
+                   // 3. selects all fields from lessons for these rows
+
+                // For each one, instantiate a new Lesson object, 
+                // and add it to this collection (use 'LessonSelection.addLesson()' )
                 st.close();
             }
         } catch(Exception e){
@@ -81,37 +84,30 @@ public class LessonSelection  {
     
     public void updateBooking(String clientId) {
         Object[] lessonKeys = chosenLessons.keySet().toArray();
-        for (Object lessonKey : lessonKeys) {
-            String lessonId = (String) lessonKey;
-            
-            System.out.println(" >>> Lesson ID is : " + lessonId);
-            
-            try {
-                Connection dbConnection = ds.getConnection();
-                PreparedStatement deleteQuery = dbConnection.prepareStatement(
+        
+        try {
+            Connection dbConnection = ds.getConnection();
+            PreparedStatement deleteQuery = dbConnection.prepareStatement(
                         "DELETE FROM cw.lessons_booked WHERE  `clientid`=?;");
-                deleteQuery.setString(1, clientId);
-                deleteQuery.executeUpdate();
+            deleteQuery.setString(1, clientId);
+            deleteQuery.executeUpdate();
+            System.out.println("BLATTED YOUR USER BOOKINGS >>> " + clientId);
                 
-                System.out.println("BLATTED YOUR USER DETAILS >>> " + clientId);
-                
-//                PreparedStatement insertQuery = dbConnection.prepareStatement(
-//                        "INSERT INTO cw.lessons_booked (clientid, lessonid) VALUES (?,?)");
-//                insertQuery.setString(1, clientId);
-//                insertQuery.setString(2, lessonId);
-//                insertQuery.executeUpdate();
-                
-            } catch (SQLException ex) {
-                System.out.println("Exception is ;"+ex + ": message is " + ex.getMessage());
+            for (Object lessonKey : lessonKeys) {
+                String lessonId = (String) lessonKey;
+
+                System.out.println(" >>> Lesson ID is : " + lessonId);  
+                PreparedStatement insertQuery = dbConnection.prepareStatement(
+                        "INSERT INTO cw.lessons_booked (clientid, lessonid) VALUES (?,?)");
+                insertQuery.setString(1, clientId);
+                insertQuery.setString(2, lessonId);
+                insertQuery.executeUpdate();
             }
+            System.out.println("ADEED NEW USER BOOKINGS >>> ");
+            
+        } catch (SQLException ex) {
+                System.out.println("Exception is ;"+ex + ": message is " + ex.getMessage());
         }
-        
-        // TODO In the database, delete any existing lessons booked for this user in the table 'lessons_booked'
-        // REMEMBER to use executeUpdate, not executeQuery
-        // TODO - write and execute a query which, for each selected lesson, will insert into the correct table:
-        // the owner id into the clientid field
-        // the lesson ID into the lessonid field
-        
     }
 
     /**
@@ -137,7 +133,7 @@ public class LessonSelection  {
     }
 
     public String getusername() {
-        return this.username;
+        return this.userId;
     }
 
 }

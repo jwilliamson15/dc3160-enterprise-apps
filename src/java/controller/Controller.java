@@ -92,10 +92,10 @@ public class Controller extends HttpServlet {
             LessonSelection bookedLessons = getBookingsFromSession();
             bookedLessons.updateBooking((String) session.getAttribute("user"));
             
-            dispatcher = this.getServletContext().getRequestDispatcher("/viewBookings.jspx");
+            dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
         }
         
-        //links used for navbar
+        //links used for navbar and rediretion
         if (action.equals("/timetable")){
             dispatcher = this.getServletContext().getRequestDispatcher("/lessonTimetable.jspx");
         }
