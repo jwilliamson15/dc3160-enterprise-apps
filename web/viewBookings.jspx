@@ -44,7 +44,10 @@
                     <jsp:useBean class="model.LessonSelection" id="bookings" scope="session"/>
                     </table>
                 </p>
-                <p><input type="submit" value="Finalise Booking" /></p>
+                    <input type="submit" value="Finalise Booking" />
+            </form>
+            <form method="POST" action="cancelBooking" >
+                <input type="submit" value="Cancel all" />
             </form>
         
         </jsp:body>

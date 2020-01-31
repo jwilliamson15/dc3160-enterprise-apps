@@ -95,6 +95,14 @@ public class Controller extends HttpServlet {
             
             dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
+        if (action.equals("/cancelBooking")) {
+            System.out.println("REMOVING BOOKING >>>");
+            LessonSelection bookedLessons = getBookingsFromSession();
+            bookedLessons.removeAll((String) session.getAttribute("user"));
+            session.setAttribute("bookings", bookedLessons);
+            
+            dispatch(VIEW_BOOKINGS_PAGE, request, response);
+        }
         
         //links used for navbar and rediretion
         if (action.equals("/timetable")){

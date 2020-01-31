@@ -77,13 +77,9 @@ public class LessonSelection  {
         Object[] lessonKeys = chosenLessons.keySet().toArray();
         
         try {
+            deleteUserBookings(clientId);
+            
             Connection dbConnection = ds.getConnection();
-            PreparedStatement deleteQuery = dbConnection.prepareStatement(
-                        "DELETE FROM cw.lessons_booked WHERE  `clientid`=?;");
-            deleteQuery.setString(1, clientId);
-            deleteQuery.executeUpdate();
-            System.out.println("BLATTED YOUR USER BOOKINGS >>> " + clientId);
-                
             for (Object lessonKey : lessonKeys) {
                 String lessonId = (String) lessonKey;
 
@@ -100,6 +96,19 @@ public class LessonSelection  {
                 System.out.println("Exception is ;"+ex + ": message is " + ex.getMessage());
         }
     }
+    
+    public void deleteUserBookings(String clientId) {
+        try {
+            Connection dbConnection = ds.getConnection();
+            PreparedStatement deleteQuery = dbConnection.prepareStatement(
+                        "DELETE FROM cw.lessons_booked WHERE  `clientid`=?;");
+            deleteQuery.setString(1, clientId);
+            deleteQuery.executeUpdate();
+            System.out.println("BLATTED YOUR USER BOOKINGS >>> " + clientId);
+        } catch (SQLException ex) {
+                System.out.println("Exception is ;"+ex + ": message is " + ex.getMessage());
+        }  
+    }
 
     /**
      * @return the items
@@ -114,6 +123,11 @@ public class LessonSelection  {
         if (chosenLessons.size() < 3) {
             this.chosenLessons.put(l.getId(), i);
         }
+    }
+    
+    public void removeAll(String userId) {
+        chosenLessons.clear();
+        deleteUserBookings(userId);
     }
 
     public Lesson getLesson(String id){
