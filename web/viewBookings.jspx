@@ -49,8 +49,6 @@
             <form method="POST" action="cancelBooking" >
                 <input type="submit" value="Cancel all" />
             </form>
-        
         </jsp:body>
     </jsp:element>
-
 </jsp:root>

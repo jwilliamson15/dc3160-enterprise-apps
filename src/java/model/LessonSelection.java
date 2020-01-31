@@ -46,15 +46,18 @@ public class LessonSelection  {
             Connection connection = ds.getConnection();
             if (connection != null) {
                 st = connection.createStatement();
+                //retrieves all current bookings from database
                 String query = "SELECT * FROM `cw`.`lessons_booked` WHERE  `clientid`="+userId+";";
                 rs = st.executeQuery(query);
                 
                 while (rs.next()) {
+                    //finds each lesson from it's ID previously found in query above
                     String lessonId = rs.getString("lessonid");
                     System.out.println("LESSON ID READ >>>" + lessonId);
                     query = "SELECT description, startDateTime, endDateTime, level, lessonid "
                             + "FROM `cw`.`lessons` WHERE lessonid =\""+lessonId+"\";";
                     ResultSet lessonRs = connection.createStatement().executeQuery(query);
+                    //adds lesson to class variable
                     if (lessonRs.next()) {
                         Lesson newLesson = new Lesson(
                             lessonRs.getString("description"),
@@ -80,6 +83,7 @@ public class LessonSelection  {
             deleteUserBookings(clientId);
             
             Connection dbConnection = ds.getConnection();
+            //adds each lesson into the database
             for (Object lessonKey : lessonKeys) {
                 String lessonId = (String) lessonKey;
 
@@ -97,6 +101,11 @@ public class LessonSelection  {
         }
     }
     
+    /**
+     * deletes all bookings for a user from the database
+     * 
+     * @param clientId 
+     */
     public void deleteUserBookings(String clientId) {
         try {
             Connection dbConnection = ds.getConnection();
@@ -120,6 +129,7 @@ public class LessonSelection  {
     public void addLesson(Lesson l) {
        
         Lesson i = new Lesson(l);
+        //restricts lessons to 3 or less
         if (chosenLessons.size() < 3) {
             this.chosenLessons.put(l.getId(), i);
         }

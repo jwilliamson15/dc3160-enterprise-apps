@@ -39,11 +39,13 @@ public class Users {
             Connection connection = ds.getConnection();
             
             if (connection != null) {
-                String query = "SELECT `username`, `password` FROM cw.clients WHERE username = '"+username+"';";
+                //gets password for given username
+                String query = "SELECT `password` FROM cw.clients WHERE username = '"+username+"';";
                 Statement stmt = connection.createStatement();
                 rs = stmt.executeQuery(query);
 
                 if (rs.next()) {
+                    //checks for correct password
                     if (password.equals(rs.getString("password"))) {
                         System.out.println("DB CREDS MATCHED >>>");
                         return true;
@@ -56,9 +58,17 @@ public class Users {
             return false;
         }
         
+        //returns false for incorrect credentials
         return false;
     }
     
+    /**
+     * adds new user to database
+     * 
+     * @param username
+     * @param password
+     * @return new user id if present
+     */
     public Integer addUser(String username, String password) {
         try {
             Connection connection = ds.getConnection();
@@ -69,7 +79,7 @@ public class Users {
                 pstmt.setString(2, password);
                 pstmt.executeUpdate();
                 
-                 int newUserId = getUserId(username);
+                int newUserId = getUserId(username);
 
                 if (newUserId > 0) {
                     System.out.println("Added user >>> " + Integer.toString(newUserId));
@@ -84,6 +94,13 @@ public class Users {
         return null;
     }
 
+    /**
+     * Retrieves the userID from the database
+     * 
+     * @param username
+     * @return user ID
+     * @throws SQLException 
+     */
     public int getUserId(String username) throws SQLException {
         Connection connection = ds.getConnection();
         String query = "SELECT `clientid` FROM cw.clients WHERE username = '"+username+"';";

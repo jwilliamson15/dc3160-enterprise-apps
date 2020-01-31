@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +22,7 @@ import model.Users;
  */
 public class Controller extends HttpServlet {
 
+    //constants used for page redirection
     private final static String LOGIN_PAGE = "/login.jsp";
     private final static String LESSON_TIMETABLE_PAGE = "/lessonTimetable.jspx";
     private final static String LOGIN_FAILED_PAGE = "/loginFailed.jsp";
@@ -59,12 +59,16 @@ public class Controller extends HttpServlet {
         dispatcher = this.getServletContext().getRequestDispatcher(LOGIN_PAGE);
         HttpSession session = request.getSession(false);
         
+        //Adds a new user
         if (action.equals("/addUser")) {
             String username = request.getParameter("newUsername");
             Integer userId = users.addUser(username, request.getParameter("newPassword"));
+            //starts new session for newly added user
             setWebSession(request, userId);
             dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
+        
+        //authenticates an existing user
         if (action.equals("/login")) {
             String username = request.getParameter("username");
             if (users.isValid(username, request.getParameter("password"))) {
@@ -77,6 +81,8 @@ public class Controller extends HttpServlet {
                 dispatch(LOGIN_FAILED_PAGE, request, response);
             }
         }
+        
+        //Books lessons for logged in user
         if (action.equals("/bookLesson")) {
             System.out.println("BOOK LESSON ACTION >>>");
             Lesson lesson = availableLessons.getLesson(request.getParameter("lessonId"));
@@ -87,6 +93,8 @@ public class Controller extends HttpServlet {
             
             dispatch(VIEW_BOOKINGS_PAGE, request, response);
         }
+        
+        //saves booking in local database
         if (action.equals("/saveBooking")) {
             System.out.println("SAVE BOOKING ACTION >>>");
             
@@ -95,6 +103,8 @@ public class Controller extends HttpServlet {
             
             dispatch(LESSON_TIMETABLE_PAGE, request, response);
         }
+        
+        //removes booking from session and database
         if (action.equals("/cancelBooking")) {
             System.out.println("REMOVING BOOKING >>>");
             LessonSelection bookedLessons = getBookingsFromSession();
@@ -123,11 +133,13 @@ public class Controller extends HttpServlet {
         
     }
     
+    //dispatcher method for navigating
     private void dispatch(String dispatchPath, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         dispatcher = this.getServletContext().getRequestDispatcher(dispatchPath);
         dispatcher.forward(req, resp);
     }
     
+    //add the userID and bookings to the session
     private void setWebSession(HttpServletRequest request, Integer userId) {
         String userIdStr = Integer.toString(userId);
         session = request.getSession();
@@ -137,6 +149,7 @@ public class Controller extends HttpServlet {
         session.setAttribute("bookings", bookedLessons);
     }
     
+    //retrievese the bookings from session
     private LessonSelection getBookingsFromSession() {
         return (LessonSelection) session.getAttribute("bookings");
     }
